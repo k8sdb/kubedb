@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Secret
+metadata:
+ name: myregistrykey
+ namespace: demo
+data:
+ .dockerconfigjson: <base-64-encoded-json-here>
+type: kubernetes.io/dockerconfigjson

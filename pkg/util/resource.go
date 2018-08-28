@@ -60,6 +60,11 @@ func GetSupportedResource(resource string) (string, error) {
 		strings.ToLower(tapi.ResourceCodeDormantDatabase),
 		strings.ToLower(tapi.ResourceSingularDormantDatabase):
 		return tapi.ResourcePluralDormantDatabase + "." + tapi.SchemeGroupVersion.Group, nil
+	case strings.ToLower(tapi.ResourceKindEtcd),
+		strings.ToLower(tapi.ResourcePluralEtcd),
+		strings.ToLower(tapi.ResourceCodeEtcd),
+		strings.ToLower(tapi.ResourceSingularEtcd):
+		return tapi.ResourcePluralEtcd + "." + tapi.SchemeGroupVersion.Group, nil
 	default:
 		return "", fmt.Errorf(`kubedb doesn't support a resource type "%v"`, resource)
 	}
@@ -107,6 +112,11 @@ func GetResourceType(resource string) (string, error) {
 		strings.ToLower(tapi.ResourceCodeDormantDatabase),
 		strings.ToLower(tapi.ResourceSingularDormantDatabase):
 		return tapi.ResourcePluralDormantDatabase, nil
+	case strings.ToLower(tapi.ResourceKindEtcd),
+		strings.ToLower(tapi.ResourcePluralEtcd),
+		strings.ToLower(tapi.ResourceCodeEtcd),
+		strings.ToLower(tapi.ResourceSingularEtcd):
+		return tapi.ResourcePluralEtcd, nil
 	default:
 		return "", fmt.Errorf(`kubedb doesn't support a resource type "%v"`, resource)
 	}
@@ -121,7 +131,8 @@ func CheckSupportedResource(kind string) error {
 		tapi.ResourceKindRedis,
 		tapi.ResourceKindMemcached,
 		tapi.ResourceKindSnapshot,
-		tapi.ResourceKindDormantDatabase:
+		tapi.ResourceKindDormantDatabase,
+		tapi.ResourceKindEtcd:
 		return nil
 	default:
 		return fmt.Errorf(`kubedb doesn't support a resource type "%v"`, kind)
@@ -139,6 +150,7 @@ func GetAllSupportedResources(f cmdutil.Factory) ([]string, error) {
 		tapi.ResourcePluralMemcached + "." + tapi.SchemeGroupVersion.Group,
 		tapi.ResourcePluralSnapshot + "." + tapi.SchemeGroupVersion.Group,
 		tapi.ResourcePluralDormantDatabase + "." + tapi.SchemeGroupVersion.Group,
+		tapi.ResourcePluralEtcd + "." + tapi.SchemeGroupVersion.Group,
 	}
 
 	restConfig, err := f.ClientConfig()
@@ -175,6 +187,7 @@ var ShortForms = map[string]string{
 	tapi.ResourceCodeMemcached:       tapi.ResourcePluralMemcached,
 	tapi.ResourceCodeSnapshot:        tapi.ResourcePluralSnapshot,
 	tapi.ResourceCodeDormantDatabase: tapi.ResourcePluralDormantDatabase,
+	tapi.ResourceCodeEtcd:            tapi.ResourcePluralDormantDatabase,
 }
 
 func ResourceShortFormFor(resource string) (string, bool) {
@@ -301,6 +314,12 @@ var PreconditionSpecField = map[string][]string{
 	tapi.ResourceKindDormantDatabase: {
 		"spec.origin",
 	},
+	tapi.ResourceKindEtcd: {
+		"spec.version",
+		"spec.storage",
+		"spec.nodeSelector",
+		"spec.init",
+	},
 }
 
 func GetConditionalPreconditionFunc(kind string) []mergepatch.PreconditionFunc {
@@ -336,6 +355,8 @@ func CheckResourceExists(client internalclientset.Interface, kind, name, namespa
 		offshootLabels = tapi.Redis{ObjectMeta: objectMata}.OffshootLabels()
 	case tapi.ResourceKindMemcached:
 		offshootLabels = tapi.Memcached{ObjectMeta: objectMata}.OffshootLabels()
+	case tapi.ResourceKindEtcd:
+		offshootLabels = tapi.Etcd{ObjectMeta: objectMata}.OffshootLabels()
 	}
 
 	labelSelector := labels.SelectorFromSet(offshootLabels)

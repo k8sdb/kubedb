@@ -1,0 +1,17 @@
+apiVersion: kubedb.com/v1alpha1
+kind: Etcd
+metadata:
+  name: etcdb
+  namespace: demo
+spec:
+  replicas: 3
+  version: "3.2.13"
+  storage:
+    storageClassName: "standard"
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
+  monitor:
+    agent: prometheus.io/builtin

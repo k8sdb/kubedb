@@ -65,6 +65,15 @@ func ValidateDeletion(info *resource.Info) error {
 		if memcached.Spec.DoNotPause {
 			return fmt.Errorf(`memcached "%v" can't be paused. To continue delete, unset spec.doNotPause and retry`, memcached.Name)
 		}
+	case tapi.ResourceKindEtcd:
+		var etcd *tapi.Etcd
+		if err := yaml.Unmarshal(objByte, &etcd); err != nil {
+			return err
+		}
+		if etcd.Spec.DoNotPause {
+			return fmt.Errorf(`etcd "%v" can't be paused. To continue delete, unset spec.doNotPause and retry`, etcd.Name)
+		}
+
 	}
 	return nil
 }

@@ -1,0 +1,132 @@
+apiVersion: v1
+items:
+- apiVersion: kubedb.com/v1alpha1
+  kind: Snapshot
+  metadata:
+    clusterName: ""
+    creationTimestamp: 2018-08-01T09:15:07Z
+    generation: 1
+    labels:
+      kubedb.com/kind: ""
+      kubedb.com/name: etcdb-demo
+    name: etcdb-demo-20180801-091507
+    namespace: default
+    resourceVersion: "16087"
+    selfLink: /apis/kubedb.com/v1alpha1/namespaces/default/snapshots/etcdb-demo-20180801-091507
+    uid: 622229a3-956b-11e8-95a5-080027c002b2
+  spec:
+    databaseName: etcdb-demo
+    gcs:
+      bucket: kubedbetcd
+    resources: {}
+    storageSecretName: gcs-secret
+  status: {}
+- apiVersion: kubedb.com/v1alpha1
+  kind: Snapshot
+  metadata:
+    clusterName: ""
+    creationTimestamp: 2018-08-01T09:20:09Z
+    generation: 1
+    labels:
+      kubedb.com/kind: ""
+      kubedb.com/name: etcdb-demo
+    name: etcdb-demo-20180801-092009
+    namespace: default
+    resourceVersion: "16450"
+    selfLink: /apis/kubedb.com/v1alpha1/namespaces/default/snapshots/etcdb-demo-20180801-092009
+    uid: 15d6d05d-956c-11e8-95a5-080027c002b2
+  spec:
+    databaseName: etcdb-demo
+    gcs:
+      bucket: kubedbetcd
+    resources: {}
+    storageSecretName: gcs-secret
+  status: {}
+- apiVersion: kubedb.com/v1alpha1
+  kind: Snapshot
+  metadata:
+    clusterName: ""
+    creationTimestamp: 2018-08-01T09:35:09Z
+    generation: 1
+    labels:
+      kubedb.com/kind: ""
+      kubedb.com/name: etcdb-demo
+    name: etcdb-demo-20180801-093509
+    namespace: default
+    resourceVersion: "17462"
+    selfLink: /apis/kubedb.com/v1alpha1/namespaces/default/snapshots/etcdb-demo-20180801-093509
+    uid: 2e453d89-956e-11e8-95a5-080027c002b2
+  spec:
+    databaseName: etcdb-demo
+    gcs:
+      bucket: kubedbetcd
+    resources: {}
+    storageSecretName: gcs-secret
+  status: {}
+- apiVersion: kubedb.com/v1alpha1
+  kind: Snapshot
+  metadata:
+    clusterName: ""
+    creationTimestamp: 2018-08-01T10:05:24Z
+    generation: 1
+    labels:
+      kubedb.com/kind: ""
+      kubedb.com/name: etcdb-demo
+    name: etcdb-demo-20180801-100524
+    namespace: default
+    resourceVersion: "19525"
+    selfLink: /apis/kubedb.com/v1alpha1/namespaces/default/snapshots/etcdb-demo-20180801-100524
+    uid: 68183c2c-9572-11e8-95a5-080027c002b2
+  spec:
+    databaseName: etcdb-demo
+    gcs:
+      bucket: kubedbetcd
+    resources: {}
+    storageSecretName: gcs-secret
+  status: {}
+- apiVersion: kubedb.com/v1alpha1
+  kind: Snapshot
+  metadata:
+    clusterName: ""
+    creationTimestamp: 2018-08-01T10:13:24Z
+    generation: 1
+    labels:
+      kubedb.com/kind: ""
+      kubedb.com/name: etcdb-demo
+    name: etcdb-demo-20180801-101324
+    namespace: default
+    resourceVersion: "20054"
+    selfLink: /apis/kubedb.com/v1alpha1/namespaces/default/snapshots/etcdb-demo-20180801-101324
+    uid: 86335eb7-9573-11e8-95a5-080027c002b2
+  spec:
+    databaseName: etcdb-demo
+    gcs:
+      bucket: kubedbetcd
+    resources: {}
+    storageSecretName: gcs-secret
+  status: {}
+- apiVersion: kubedb.com/v1alpha1
+  kind: Snapshot
+  metadata:
+    clusterName: ""
+    creationTimestamp: 2018-08-01T10:29:24Z
+    generation: 1
+    labels:
+      kubedb.com/kind: ""
+      kubedb.com/name: etcdb-demo
+    name: etcdb-demo-20180801-102924
+    namespace: default
+    resourceVersion: "21169"
+    selfLink: /apis/kubedb.com/v1alpha1/namespaces/default/snapshots/etcdb-demo-20180801-102924
+    uid: c266d5bf-9575-11e8-95a5-080027c002b2
+  spec:
+    databaseName: etcdb-demo
+    gcs:
+      bucket: kubedbetcd
+    resources: {}
+    storageSecretName: gcs-secret
+  status: {}
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

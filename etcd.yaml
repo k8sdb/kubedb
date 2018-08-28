@@ -1,0 +1,35 @@
+apiVersion: v1
+items:
+- apiVersion: kubedb.com/v1alpha1
+  kind: Etcd
+  metadata:
+    clusterName: ""
+    creationTimestamp: 2018-08-01T08:16:46Z
+    finalizers:
+    - kubedb.com
+    generation: 1
+    name: etcdb
+    namespace: demo
+    resourceVersion: "11848"
+    selfLink: /apis/kubedb.com/v1alpha1/namespaces/demo/etcds/etcdb
+    uid: 3b2ffa2f-9563-11e8-95a5-080027c002b2
+  spec:
+    monitor:
+      agent: prometheus.io/builtin
+      prometheus:
+        port: 2379
+    replicas: 3
+    storage:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: standard
+    version: 3.2.13
+  status:
+    phase: Running
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

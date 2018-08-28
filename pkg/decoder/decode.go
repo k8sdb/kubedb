@@ -58,6 +58,12 @@ func Decode(kind string, data []byte) (runtime.Object, error) {
 			return nil, err
 		}
 		return deletedDb, nil
+	case tapi.ResourceKindEtcd:
+		var etcd *tapi.Etcd
+		if err := yaml.Unmarshal(data, &etcd); err != nil {
+			return nil, err
+		}
+		return etcd, nil
 	}
 
 	return nil, fmt.Errorf(`Invalid kind: "%v"`, kind)

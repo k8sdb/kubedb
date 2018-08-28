@@ -24,20 +24,20 @@ KubeDB comes with its own cli. It is called `kubedb` cli. `kubedb` can be used t
 
 ```console
 $ kubedb create -f etcd-demo.yaml
-mongodb "mongodb-demo" created
+etcd.kubedb.com "etcdb-demo" created
 ```
 
 You can provide namespace as a flag `--namespace`. Provided namespace should match with namespace specified in input file.
 
 ```console
-$ kubedb create -f mongodb-demo.yaml --namespace=kube-system
-mongodb "mongodb-demo" created
+$ kubedb create -f etcd-demo.yaml --namespace=kube-system
+etcd.kubedb.com "etcdb-demo" created
 ```
 
 `kubedb create` command also considers `stdin` as input.
 
 ```console
-cat mongodb-demo.yaml | kubedb create -f -
+cat etcd-demo.yaml | kubedb create -f -
 ```
 
 To learn about various options of `create` command, please visit [here](/docs/reference/kubedb_create.md).
@@ -47,73 +47,63 @@ To learn about various options of `create` command, please visit [here](/docs/re
 `kubedb get` command allows users to list or find any KubeDB object. To list all MongoDB objects in `default` namespace, run the following command:
 
 ```console
-$ kubedb get mongodb
-NAME            STATUS    AGE
-mongodb-demo    Running   5h
-mongodb-dev     Running   4h
-mongodb-prod    Running   30m
-mongodb-qa      Running   2h
+$ kubedb get etcd
+NAME         STATUS    AGE
+etcdb-demo   Running   43s
 ```
 
 To get YAML of an object, use `--output=yaml` flag.
 
 ```yaml
-$ kubedb get mongodb mongodb-demo --output=yaml
+$ kubedb get etcd etcdb-demo --output=yaml
 apiVersion: kubedb.com/v1alpha1
-kind: MongoDB
+kind: Etcd
 metadata:
   clusterName: ""
-  creationTimestamp: 2018-02-28T08:21:29Z
+  creationTimestamp: 2018-08-01T09:01:15Z
   finalizers:
   - kubedb.com
-  generation: 0
-  name: mongodb-demo
+  generation: 1
+  name: etcdb-demo
   namespace: default
-  resourceVersion: "4592"
-  selfLink: /apis/kubedb.com/v1alpha1/namespaces/default/mongodbs/mongodb-demo
-  uid: 60720f29-1c60-11e8-b698-080027585f96
+  resourceVersion: "15011"
+  selfLink: /apis/kubedb.com/v1alpha1/namespaces/default/etcds/etcdb-demo
+  uid: 726f5576-9569-11e8-95a5-080027c002b2
 spec:
-  databaseSecret:
-    secretName: mongodb-demo-auth
+  replicas: 3
   storage:
     accessModes:
     - ReadWriteOnce
     resources:
       requests:
-        storage: 50Mi
+        storage: 1Gi
     storageClassName: standard
-  version: 3.4
+  version: 3.2.13
 status:
-  creationTime: 2018-02-28T08:21:43Z
   phase: Running
+
 ```
 
 To get JSON of an object, use `--output=json` flag.
 
 ```console
-$ kubedb get mongodb mongodb-demo --output=json
+$ kubedb get etcd etcdb-demo --output=json
 ```
 
 To list all KubeDB objects, use following command:
 
 ```console
 $ kubedb get all -o wide
-NAME                VERSION     STATUS  AGE
-etcd/mongodb-demo     3.4         Running 3h
-etcd/mongodb-dev      3.4         Running 3h
-etcd/mongodb-prod     3.4         Running 3h
-etcd/mongodb-qa       3.4         Running 3h
+NAME               VERSION   STATUS    AGE
+etcds/etcdb-demo   3.2.13    Running   9m
 
-NAME                                DATABASE                BUCKET              STATUS      AGE
-snap/mongodb-demo-20170605-073557   etcd/mongodb-demo         gs:bucket-name      Succeeded   9m
-snap/snapshot-20171212-114700       etcd/mongodb-demo         gs:bucket-name      Succeeded   1h
 ```
 
 Flag `--output=wide` is used to print additional information.
 
 List command supports short names for each object types. You can use it like `kubedb get <short-name>`. Below are the short name for KubeDB objects:
 
-- MongoDB: `etcd`
+- Etcd: `etcd`
 - Snapshot: `snap`
 - DormantDatabase: `drmn`
 
@@ -139,11 +129,8 @@ To print only object name, run the following command:
 
 ```console
 $ kubedb get all -o name
-mongodb/mongodb-demo
-mongodb/mongodb-dev
-mongodb/mongodb-prod
-mongodb/mongodb-qa
-snapshot/mongodb-demo-20170605-073557
+etcd.kubedb.com/etcdb-demo
+snapshot/etcdb-demo-20170605-073557
 snapshot/snapshot-20170505-114700
 ```
 
@@ -151,56 +138,48 @@ To learn about various options of `get` command, please visit [here](/docs/refer
 
 ### How to Describe Objects
 
-`kubedb describe` command allows users to describe any KubeDB object. The following command will describe MongoDB database `mongodb-demo` with relevant information.
+`kubedb describe` command allows users to describe any KubeDB object. The following command will describe MongoDB database `etcdb-demo` with relevant information.
 
 ```console
-$ kubedb describe etcd mongodb-demo
-Name:		mongodb-demo
+$ kubedb describe etcd etcdb-demo
+Name:		etcdb-demo
 Namespace:	default
-StartTimestamp:	Wed, 28 Feb 2018 14:21:29 +0600
+StartTimestamp:	Wed, 01 Aug 2018 15:01:15 +0600
+Replicas:	3  total
 Status:		Running
 Volume:
   StorageClass:	standard
-  Capacity:	50Mi
+  Capacity:	1Gi
   Access Modes:	RWO
 
-StatefulSet:
-  Name:			mongodb-demo
-  Replicas:		1 current / 1 desired
-  CreationTimestamp:	Wed, 28 Feb 2018 14:21:46 +0600
-  Pods Status:		1 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Service:
+  Name:		etcdb-demo
+  Type:		ClusterIP
+  IP:		None
+  Port:		client	2379/TCP
+  Port:		peer	2380/TCP
 
 Service:
-  Name:		mongodb-demo
+  Name:		etcdb-demo-client
   Type:		ClusterIP
-  IP:		10.98.153.181
-  Port:		db	27017/TCP
-
-Database Secret:
-  Name:	mongodb-demo-auth
-  Type:	Opaque
-  Data
-  ====
-  password:	16 bytes
-  user:		4 bytes
+  IP:		10.110.93.14
+  Port:		client	2379/TCP
 
 No Snapshots.
 
 Events:
-  FirstSeen   LastSeen   Count     From               Type       Reason       Message
-  ---------   --------   -----     ----               --------   ------       -------
-  14m         14m        1         MongoDB operator   Normal     Successful   Successfully patched MongoDB
-  14m         14m        1         MongoDB operator   Normal     Successful   Successfully patched StatefulSet
-  15m         15m        1         MongoDB operator   Normal     Successful   Successfully patched StatefulSet
-  15m         15m        1         MongoDB operator   Normal     Successful   Successfully patched MongoDB
-  15m         15m        1         MongoDB operator   Normal     Successful   Successfully created StatefulSet
-  15m         15m        1         MongoDB operator   Normal     Successful   Successfully created MongoDB
-  15m         15m        1         MongoDB operator   Normal     Successful   Successfully created Service
+  FirstSeen   LastSeen   Count     From            Type       Reason             Message
+  ---------   --------   -----     ----            --------   ------             -------
+  8m          8m         1                         Normal     New Member Added   New member etcdb-demo-696p58sv64 added to cluster
+  9m          9m         1                         Normal     New Member Added   New member etcdb-demo-hfh6pv66td added to cluster
+  10m         10m        1                         Normal     New Member Added   New member etcdb-demo-s889grj9xr added to cluster
+  10m         10m        1         Etcd operator   Normal     Successful         Successfully created Etcd
+
 ```
 
-`kubedb describe` command provides following basic information about a MongoDB database.
+`kubedb describe` command provides following basic information about a Etcd database.
 
-- StatefulSet
+- Pd
 - Storage (Persistent Volume)
 - Service
 - Secret (If available)
@@ -241,19 +220,19 @@ To learn about various options of `describe` command, please visit [here](/docs/
 
 `kubedb edit` command allows users to directly edit any KubeDB object. It will open the editor defined by _KUBEDB_EDITOR_, or _EDITOR_ environment variables, or fall back to `nano`.
 
-Lets edit an existing running MongoDB object to setup [Scheduled Backup](/docs/guides/mongodb/snapshot/scheduled-backup.md). The following command will open MongoDB `mongodb-demo` in editor.
+Lets edit an existing running MongoDB object to setup [Scheduled Backup](/docs/guides/mongodb/snapshot/scheduled-backup.md). The following command will open MongoDB `etcdb-demo` in editor.
 
 ```console
-$ kubedb edit etcd mongodb-demo
+$ kubedb edit etcd etcdb-demo
 
 # Add following under Spec to configure periodic backups
 # backupSchedule:
 #   cronExpression: '@every 1m'
-#   storageSecretName: etcd-snap-secret
+#   storageSecretName: gcs-secret
 #   gcs:
 #     bucket: bucket-name
 
-mongodb "mongodb-demo" edited
+etcd "mongodb-demo" edited
 ```
 
 #### Edit Restrictions

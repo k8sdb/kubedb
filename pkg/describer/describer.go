@@ -54,6 +54,7 @@ func (h *humanReadableDescriber) addDefaultHandlers() {
 	h.Handler(h.describeMemcached)
 	h.Handler(h.describeSnapshot)
 	h.Handler(h.describeDormantDatabase)
+	h.Handler(h.describeEtcd)
 }
 
 func (h *humanReadableDescriber) Handler(describeFunc interface{}) error {

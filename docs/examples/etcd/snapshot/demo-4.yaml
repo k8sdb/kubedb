@@ -1,0 +1,19 @@
+apiVersion: kubedb.com/v1alpha1
+kind: MongoDB
+metadata:
+  name: mgo-scheduled
+  namespace: demo
+spec:
+  version: "3.4"
+  storage:
+    storageClassName: "standard"
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 50Mi
+  backupSchedule:
+    cronExpression: "@every 1m"
+    storageSecretName: mg-snap-secret
+    gcs:
+      bucket: restic

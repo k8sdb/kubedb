@@ -74,6 +74,7 @@ const (
     * memcacheds
     * snapshots
     * dormantdatabases
+	* etcds
     `
 )
 

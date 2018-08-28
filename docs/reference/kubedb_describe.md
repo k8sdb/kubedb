@@ -25,6 +25,7 @@ Show details of a specific resource or group of resources. This command joins ma
   * memcacheds  
   * snapshots  
   * dormantdatabases
+  * etcds
 
 ```
 kubedb describe (TYPE [NAME_PREFIX] | TYPE/NAME) [flags]

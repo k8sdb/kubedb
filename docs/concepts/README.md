@@ -26,5 +26,6 @@ Concepts help you learn about the different parts of the KubeDB and the abstract
   - [MySQL](/docs/concepts/databases/mysql.md). Introduces the concept of `MySQL` to manage MySQL using KubeDB.
   - [PostgreSQL](/docs/concepts/databases/postgres.md). Introduces the concept of `PostgreSQL` to manage PostgreSQL using KubeDB.
   - [Redis](/docs/concepts/databases/redis.md). Introduces the concept of `Redis` to manage Redis using KubeDB.
+  - [Etcd](/docs/concepts/databases/etcd.md). Introduces the concept of `Etcd` to manage Etcd using KubeDB.
 - [Monitoring](/docs/concepts/monitoring.md). Introduces various aspects of KubeDB's support for monitoring via Prometheus.
 - [Snapshot](/docs/concepts/snapshot.md). Introduces the concept of `Snapshot` to take backups of a KubeDB managed database.

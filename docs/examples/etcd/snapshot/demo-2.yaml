@@ -1,0 +1,12 @@
+apiVersion: kubedb.com/v1alpha1
+kind: Snapshot
+metadata:
+  name: snapshot-infant
+  namespace: demo
+  labels:
+    kubedb.com/kind: Etcd
+spec:
+  databaseName: etcd-infant
+  storageSecretName: etcd-snap-secret
+  gcs:
+    bucket: restic

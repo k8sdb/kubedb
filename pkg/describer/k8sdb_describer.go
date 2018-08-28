@@ -443,6 +443,79 @@ func (d *humanReadableDescriber) describeMemcached(item *api.Memcached, describe
 	})
 }
 
+func (d *humanReadableDescriber) describeEtcd(item *api.Etcd, describerSettings *printer.DescriberSettings) (string, error) {
+	clientSet, err := d.ClientSet()
+	if err != nil {
+		return "", err
+	}
+
+	labelSelector := labels.SelectorFromSet(
+		map[string]string{
+			api.LabelDatabaseKind: item.ResourceKind(),
+			api.LabelDatabaseName: item.Name,
+		},
+	)
+
+	snapshots, err := d.extensionsClient.Snapshots(item.Namespace).List(
+		metav1.ListOptions{
+			LabelSelector: labelSelector.String(),
+		},
+	)
+	if err != nil {
+		return "", err
+	}
+
+	var events *kapi.EventList
+	if describerSettings.ShowEvents {
+		item.Kind = api.ResourceKindEtcd
+		events, err = clientSet.Core().Events(item.Namespace).Search(scheme.Scheme, item)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return tabbedString(func(out io.Writer) error {
+		fmt.Fprintf(out, "Name:\t%s\n", item.Name)
+		fmt.Fprintf(out, "Namespace:\t%s\n", item.Namespace)
+		fmt.Fprintf(out, "StartTimestamp:\t%s\n", timeToString(&item.CreationTimestamp))
+		if item.Labels != nil {
+			printLabelsMultiline(out, "Labels", item.Labels)
+		}
+		if item.Annotations != nil {
+			printLabelsMultiline(out, "Annotations", item.Annotations)
+		}
+		if item.Spec.Replicas != nil {
+			fmt.Fprintf(out, "Replicas:\t%d  total\n", types.Int32(item.Spec.Replicas))
+		}
+		fmt.Fprintf(out, "Status:\t%s\n", string(item.Status.Phase))
+		if len(item.Status.Reason) > 0 {
+			fmt.Fprintf(out, "Reason:\t%s\n", item.Status.Reason)
+		}
+
+		describeStorage(item.Spec.Storage, out)
+
+		d.showWorkload(item.Namespace, labelSelector, describerSettings.ShowWorkload, out)
+
+		secretVolumes := make(map[string]*core.SecretVolumeSource)
+		if item.Spec.DatabaseSecret != nil {
+			secretVolumes["Database"] = item.Spec.DatabaseSecret
+		}
+		d.showSecret(item.Namespace, secretVolumes, describerSettings.ShowSecret, out)
+
+		if item.Spec.Monitor != nil {
+			describeMonitor(item.Spec.Monitor, out)
+		}
+
+		listSnapshots(snapshots, out)
+
+		if events != nil {
+			describeEvents(events, out)
+		}
+
+		return nil
+	})
+}
+
 func (d *humanReadableDescriber) describeSnapshot(item *api.Snapshot, describerSettings *printer.DescriberSettings) (string, error) {
 	clientSet, err := d.ClientSet()
 	if err != nil {

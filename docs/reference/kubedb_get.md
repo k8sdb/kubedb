@@ -27,6 +27,7 @@ Valid resource types include:
   * memcacheds  
   * snapshots  
   * dormantdatabases
+  * etcds
 
 ```
 kubedb get [flags]

@@ -49,6 +49,7 @@ const (
     * mongodbs
     * redises
     * memcacheds
+    * etcds
     `
 )
 
