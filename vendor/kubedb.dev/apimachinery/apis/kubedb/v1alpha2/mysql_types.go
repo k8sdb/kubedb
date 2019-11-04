@@ -121,9 +121,16 @@ type MySQLSpec struct {
 	// TerminationPolicy controls the delete operation for database
 	// +optional
 	TerminationPolicy TerminationPolicy `json:"terminationPolicy,omitempty" protobuf:"bytes,16,opt,name=terminationPolicy,casttype=TerminationPolicy"`
+
+	// Indicated whether to use DNS or IP address to address pods in a db cluster.
+	// If IP address is used, HostNetwork will be used. Defaults to DNS.
+	// +kubebuilder:default:=DNS
+	// +optional
+	// +default="DNS"
+	UseAddressType AddressType `json:"useAddressType,omitempty" protobuf:"bytes,17,opt,name=useAddressType,casttype=AddressType"`
 }
 
-// +kubebuilder:validation:Enum=server;archiver;metrics-exporter
+// +kubebuilder:validation:Enum=server;client;metrics-exporter
 type MySQLCertificateAlias string
 
 const (

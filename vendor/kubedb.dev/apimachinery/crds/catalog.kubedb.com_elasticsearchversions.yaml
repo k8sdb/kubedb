@@ -93,6 +93,14 @@ spec:
               required:
               - databasePolicyName
               type: object
+            securityContext:
+              properties:
+                runAsAnyNonRoot:
+                  type: boolean
+                runAsUser:
+                  format: int64
+                  type: integer
+              type: object
             stash:
               properties:
                 addon:

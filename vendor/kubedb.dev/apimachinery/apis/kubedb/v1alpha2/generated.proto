@@ -904,6 +904,13 @@ message MySQLSpec {
   // TerminationPolicy controls the delete operation for database
   // +optional
   optional string terminationPolicy = 16;
+
+  // Indicated whether to use DNS or IP address to address pods in a db cluster.
+  // If IP address is used, HostNetwork will be used. Defaults to DNS.
+  // +kubebuilder:default:=DNS
+  // +optional
+  // +default="DNS"
+  optional string useAddressType = 17;
 }
 
 message MySQLStatus {
