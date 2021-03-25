@@ -1,11 +1,11 @@
 module kubedb.dev/cli
 
-go 1.12
+go 1.14
 
 require (
 	github.com/fatih/camelcase v1.0.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
-	github.com/spf13/cobra v1.1.1
+	github.com/spf13/cobra v1.1.3
 	gomodules.xyz/pointer v0.0.0-20201105071923-daf60fa55209
 	gomodules.xyz/runtime v0.0.0-20201104200926-d838b09dda8b
 	gomodules.xyz/x v0.0.0-20201105065653-91c568df6331
@@ -18,7 +18,7 @@ require (
 	kmodules.xyz/client-go v0.0.0-20210313172452-3345a02bec66
 	kmodules.xyz/custom-resources v0.0.0-20210222235834-b3f8dc56b6a3
 	kmodules.xyz/monitoring-agent-api v0.0.0-20201105074044-be7a1044891a
-	kubedb.dev/apimachinery v0.17.1
+	kubedb.dev/apimachinery v0.17.2-0.20210323223155-ed221fe1b69c
 	stash.appscode.dev/apimachinery v0.11.11
 )
 

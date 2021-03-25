@@ -74,6 +74,13 @@ func NewKubeDBCommand(in io.Reader, out, err io.Writer) *cobra.Command {
 				v.NewCmdVersion(),
 			},
 		},
+		{
+			Message: "Pause and Resume Commands:",
+			Commands: []*cobra.Command{
+				NewCmdPause("kubedb", f, ioStreams),
+				NewCmdResume("kubedb", f, ioStreams),
+			},
+		},
 	}
 	groups.Add(rootCmd)
 	templates.ActsAsRootCommand(rootCmd, nil, groups...)

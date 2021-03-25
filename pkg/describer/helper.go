@@ -88,13 +88,17 @@ func describeMonitor(monitor *mona.AgentSpec, w describe.PrefixWriter) {
 		prom := monitor.Prometheus
 		w.Write(LEVEL_0, "  Prometheus:\n")
 		if prom.Exporter.Port != 0 {
-			w.Write(LEVEL_0, "    Port:\t%v\n", prom.Exporter.Port)
+			w.Write(LEVEL_0, "    Exporter:\n")
+			w.Write(LEVEL_0, "      Port:\t%v\n", prom.Exporter.Port)
 		}
-		if prom.ServiceMonitor.Labels != nil {
-			printLabelsMultiline(LEVEL_0, w, "    Labels", prom.ServiceMonitor.Labels)
-		}
-		if prom.ServiceMonitor.Interval != "" {
-			w.Write(LEVEL_0, "    Interval:\t%s\n", prom.ServiceMonitor.Interval)
+		if prom.ServiceMonitor != nil {
+			w.Write(LEVEL_0, "    ServiceMonitor:\n")
+			if prom.ServiceMonitor.Labels != nil {
+				printLabelsMultiline(LEVEL_0, w, "      Labels", prom.ServiceMonitor.Labels)
+			}
+			if prom.ServiceMonitor.Interval != "" {
+				w.Write(LEVEL_0, "      Interval:\t%s\n", prom.ServiceMonitor.Interval)
+			}
 		}
 	}
 }
