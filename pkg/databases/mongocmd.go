@@ -149,7 +149,7 @@ func mgApplyCommand(auth *corev1.Secret, localPort int, command string) {
 		"--host=127.0.0.1", fmt.Sprintf("--port=%d", localPort),
 		fmt.Sprintf("--username=%s", auth.Data["username"]),
 		fmt.Sprintf("--password=%s", auth.Data["password"]), "--eval",
-		fmt.Sprintf("%s", command),
+		command,
 	).SetStdin(os.Stdin).Run()
 	if err != nil {
 		log.Fatalln("go-sh err = ", err)
@@ -195,12 +195,15 @@ func getMongoDBInfo(namespace string, dbObjectName string) (podName string, secr
 		return "", "", errors.New("MongoDB is not ready")
 	}
 	secretName = mongo.Spec.AuthSecret.Name
-	podName = getPrimaryPodName(config, mongo)
-
+	podName, err = getPrimaryPodName(config, mongo)
+	if err != nil {
+		return "", "", err
+	}
 	return podName, secretName, nil
 }
 
-func getPrimaryPodName(config *rest.Config, mongo *apiv1alpha2.MongoDB) (podName string) {
+func getPrimaryPodName(config *rest.Config, mongo *apiv1alpha2.MongoDB) (string, error) {
+	podName := ""
 	if mongo.Spec.ReplicaSet == nil && mongo.Spec.ShardTopology == nil {
 		//one mongo, without shard
 		podName = fmt.Sprintf("%v-0", mongo.Name)
@@ -211,8 +214,11 @@ func getPrimaryPodName(config *rest.Config, mongo *apiv1alpha2.MongoDB) (podName
 		podName = GetMongosPodName(config, mongo)
 	}
 	//More than a replica, no shard
-	podName, _ = GetReplicaMasterNode(mongo)
-	return podName
+	podName, err := GetReplicaMasterNode(mongo)
+	if err != nil {
+		return "", err
+	}
+	return podName, nil
 }
 
 func GetMongosPodName(config *rest.Config, mongo *apiv1alpha2.MongoDB) (mongosPodName string) {
@@ -243,7 +249,12 @@ func GetReplicaMasterNode(mongo *apiv1alpha2.MongoDB) (string, error) {
 		defer tunnel.Close()
 
 		res := make(map[string]interface{})
-		if err := client.Database("admin").RunCommand(context.Background(), bson.D{{"isMaster", "1"}}).Decode(&res); err != nil {
+		if err := client.Database("admin").RunCommand(context.Background(), bson.D{
+			{
+				Key:   "isMaster",
+				Value: "1",
+			},
+		}).Decode(&res); err != nil {
 			return false, err
 		}
 
