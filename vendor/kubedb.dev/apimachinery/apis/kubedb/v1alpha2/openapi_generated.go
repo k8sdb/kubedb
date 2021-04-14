@@ -21135,6 +21135,13 @@ func schema_apimachinery_apis_kubedb_v1alpha2_MySQLSpec(ref common.ReferenceCall
 							Format:      "",
 						},
 					},
+					"useAddressType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Indicated whether to use DNS or IP address to address pods in a db cluster. If IP address is used, HostNetwork will be used. Defaults to DNS.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"version"},
 			},

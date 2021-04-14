@@ -72,6 +72,9 @@ type ElasticsearchVersionSpec struct {
 	// Stash defines backup and restore task definitions.
 	// +optional
 	Stash appcat.StashAddonSpec `json:"stash,omitempty" protobuf:"bytes,9,opt,name=stash"`
+	// SecurityContext is for the additional security information for the Elasticsearch container
+	// +optional
+	SecurityContext ElasticsearchSecurityContext `json:"securityContext" protobuf:"bytes,10,opt,name=securityContext"`
 }
 
 // ElasticsearchVersionDatabase is the Elasticsearch Database image
@@ -103,6 +106,15 @@ type ElasticsearchVersionList struct {
 	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 	// Items is a list of ElasticsearchVersion CRD objects
 	Items []ElasticsearchVersion `json:"items,omitempty" protobuf:"bytes,2,rep,name=items"`
+}
+
+// ElasticsearchSecurityContext provides additional securityContext settings for the Elasticsearch Image
+type ElasticsearchSecurityContext struct {
+	// RunAsUser is default UID for the DB container. It defaults to 1000.
+	RunAsUser *int64 `json:"runAsUser,omitempty" protobuf:"varint,1,opt,name=runAsUser"`
+
+	// RunAsAnyNonRoot will be true if user can change the default UID to other than 1000.
+	RunAsAnyNonRoot bool `json:"runAsAnyNonRoot,omitempty" protobuf:"varint,2,opt,name=runAsAnyNonRoot"`
 }
 
 // +kubebuilder:validation:Enum=OpenDistro;SearchGuard;X-Pack

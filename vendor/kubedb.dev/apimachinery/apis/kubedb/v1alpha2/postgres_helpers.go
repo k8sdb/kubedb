@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"kubedb.dev/apimachinery/apis"
+	catalog "kubedb.dev/apimachinery/apis/catalog/v1alpha1"
 	"kubedb.dev/apimachinery/apis/kubedb"
 	"kubedb.dev/apimachinery/crds"
 
@@ -148,7 +149,7 @@ func (p Postgres) StatsServiceLabels() map[string]string {
 	return lbl
 }
 
-func (p *Postgres) SetDefaults(topology *core_util.Topology) {
+func (p *Postgres) SetDefaults(postgresVersion *catalog.PostgresVersion, topology *core_util.Topology) {
 	if p == nil {
 		return
 	}
@@ -193,14 +194,20 @@ func (p *Postgres) SetDefaults(topology *core_util.Topology) {
 
 	if p.Spec.PodTemplate.Spec.ContainerSecurityContext == nil {
 		p.Spec.PodTemplate.Spec.ContainerSecurityContext = &core.SecurityContext{
-			RunAsUser:  pointer.Int64P(PostgresUID),
+			RunAsUser:  postgresVersion.Spec.SecurityContext.RunAsUser,
+			RunAsGroup: postgresVersion.Spec.SecurityContext.RunAsUser,
 			Privileged: pointer.BoolP(false),
 			Capabilities: &core.Capabilities{
 				Add: []core.Capability{"IPC_LOCK", "SYS_RESOURCE"},
 			},
 		}
 	} else {
-		p.Spec.PodTemplate.Spec.ContainerSecurityContext.RunAsUser = pointer.Int64P(PostgresUID)
+		if p.Spec.PodTemplate.Spec.ContainerSecurityContext.RunAsUser == nil {
+			p.Spec.PodTemplate.Spec.ContainerSecurityContext.RunAsUser = postgresVersion.Spec.SecurityContext.RunAsUser
+		}
+		if p.Spec.PodTemplate.Spec.ContainerSecurityContext.RunAsGroup == nil {
+			p.Spec.PodTemplate.Spec.ContainerSecurityContext.RunAsGroup = p.Spec.PodTemplate.Spec.ContainerSecurityContext.RunAsUser
+		}
 	}
 
 	p.Spec.Monitor.SetDefaults()

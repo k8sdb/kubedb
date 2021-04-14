@@ -124,18 +124,16 @@ func (e *Elasticsearch) CertificateName(alias ElasticsearchCertificateAlias) str
 	return meta_util.NameWithSuffix(e.Name, fmt.Sprintf("%s-cert", string(alias)))
 }
 
-// MustCertSecretName returns the secret name for a certificate alias
-func (e *Elasticsearch) MustCertSecretName(alias ElasticsearchCertificateAlias) string {
-	if e == nil {
-		panic("missing Elasticsearch database")
-	} else if e.Spec.TLS == nil {
-		panic(fmt.Errorf("Elasticsearch %s/%s is missing tls spec", e.Namespace, e.Name))
+// GetCertSecretName returns the secret name for a certificate alias if any,
+// otherwise returns default certificate secret name for the given alias.
+func (e *Elasticsearch) GetCertSecretName(alias ElasticsearchCertificateAlias) string {
+	if e.Spec.TLS != nil {
+		name, ok := kmapi.GetCertificateSecretName(e.Spec.TLS.Certificates, string(alias))
+		if ok {
+			return name
+		}
 	}
-	name, ok := kmapi.GetCertificateSecretName(e.Spec.TLS.Certificates, string(alias))
-	if !ok {
-		panic(fmt.Errorf("Elasticsearch %s/%s is missing secret name for %s certificate", e.Namespace, e.Name, alias))
-	}
-	return name
+	return e.CertificateName(alias)
 }
 
 // ClientCertificateCN returns the CN for a client certificate
@@ -358,6 +356,12 @@ func (e *Elasticsearch) SetDefaults(esVersion *catalog.ElasticsearchVersion, top
 				Add: []core.Capability{"IPC_LOCK", "SYS_RESOURCE"},
 			},
 		}
+	}
+
+	// Add default Elasticsearch UID
+	if e.Spec.PodTemplate.Spec.ContainerSecurityContext.RunAsUser == nil &&
+		esVersion.Spec.SecurityContext.RunAsUser != nil {
+		e.Spec.PodTemplate.Spec.ContainerSecurityContext.RunAsUser = esVersion.Spec.SecurityContext.RunAsUser
 	}
 
 	e.setDefaultAffinity(&e.Spec.PodTemplate, e.OffshootSelectors(), topology)

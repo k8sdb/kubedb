@@ -2382,6 +2382,13 @@ spec:
                   - GroupReplication
                   type: string
               type: object
+            useAddressType:
+              enum:
+              - DNS
+              - IP
+              - IPv4
+              - IPv6
+              type: string
             version:
               type: string
           required:

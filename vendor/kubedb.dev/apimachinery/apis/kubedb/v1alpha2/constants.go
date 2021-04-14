@@ -235,8 +235,6 @@ const (
 	PostgresPEMSecretSuffix     = "pem"
 	PostgresDefaultUsername     = "postgres"
 
-	PostgresUID = 70
-
 	// =========================== ProxySQL Constants ============================
 	LabelProxySQLName        = ProxySQLKey + "/name"
 	LabelProxySQLLoadBalance = ProxySQLKey + "/load-balance"

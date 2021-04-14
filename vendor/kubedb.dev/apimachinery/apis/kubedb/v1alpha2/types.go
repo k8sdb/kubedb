@@ -87,6 +87,23 @@ const (
 	StatsServiceAlias   ServiceAlias = "stats"
 )
 
+// +kubebuilder:validation:Enum=DNS;IP;IPv4;IPv6
+type AddressType string
+
+const (
+	AddressTypeDNS AddressType = "DNS"
+	// Uses spec.podIP as address for db pods.
+	AddressTypeIP AddressType = "IP"
+	// Uses first IPv4 address from spec.podIP, spec.podIPs fields as address for db pods.
+	AddressTypeIPv4 AddressType = "IPv4"
+	// Uses first IPv6 address from spec.podIP, spec.podIPs fields as address for db pods.
+	AddressTypeIPv6 AddressType = "IPv6"
+)
+
+func (a AddressType) IsIP() bool {
+	return a == AddressTypeIP || a == AddressTypeIPv4 || a == AddressTypeIPv6
+}
+
 type NamedServiceTemplateSpec struct {
 	// Alias represents the identifier of the service.
 	Alias ServiceAlias `json:"alias" protobuf:"bytes,1,opt,name=alias"`
