@@ -28,6 +28,7 @@ import (
 
 	apiv1alpha2 "kubedb.dev/apimachinery/apis/kubedb/v1alpha2"
 	cs "kubedb.dev/apimachinery/client/clientset/versioned"
+	"kubedb.dev/cli/pkg/lib"
 
 	shell "github.com/codeskyblue/go-sh"
 	"github.com/spf13/cobra"
@@ -36,7 +37,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func addRedisCMD(cmds *cobra.Command) {
+func AddRedisCMD(cmds *cobra.Command) {
 	var redisName string
 	var dbname string
 	var namespace string
@@ -168,7 +169,7 @@ func redisApplyCommand(namespace, podName, command string) {
 }
 
 func getRedisInfo(namespace, dbObjectName string) (podName string, err error) {
-	config, err := getKubeConfig()
+	config, err := lib.GetKubeConfig()
 	if err != nil {
 		log.Fatalf("Could not get Kubernetes config: %s", err)
 	}

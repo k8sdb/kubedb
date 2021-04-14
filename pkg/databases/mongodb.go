@@ -27,6 +27,7 @@ import (
 
 	apiv1alpha2 "kubedb.dev/apimachinery/apis/kubedb/v1alpha2"
 	cs "kubedb.dev/apimachinery/client/clientset/versioned"
+	"kubedb.dev/cli/pkg/lib"
 
 	shell "github.com/codeskyblue/go-sh"
 	"github.com/spf13/cobra"
@@ -41,7 +42,7 @@ import (
 	"kmodules.xyz/client-go/tools/portforward"
 )
 
-func addMongoCMD(cmds *cobra.Command) {
+func AddMongoCMD(cmds *cobra.Command) {
 	var mgName string
 	var namespace string
 	var fileName string
@@ -69,7 +70,7 @@ func addMongoCMD(cmds *cobra.Command) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			auth, tunnel, err := tunnelToDBPod(mgPort, namespace, podName, secretName)
+			auth, tunnel, err := lib.TunnelToDBPod(mgPort, namespace, podName, secretName)
 			if err != nil {
 				log.Fatal("Couldn't tunnel through. Error = ", err)
 			}
@@ -99,7 +100,7 @@ func addMongoCMD(cmds *cobra.Command) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			auth, tunnel, err := tunnelToDBPod(mgPort, namespace, podName, secretName)
+			auth, tunnel, err := lib.TunnelToDBPod(mgPort, namespace, podName, secretName)
 			if err != nil {
 				log.Fatal("Couldn't tunnel through. Error = ", err)
 			}
@@ -182,7 +183,7 @@ func mgApplyFile(auth *corev1.Secret, localPort int, fileName string) {
 }
 
 func getMongoDBInfo(namespace string, dbObjectName string) (podName string, secretName string, err error) {
-	config, err := getKubeConfig()
+	config, err := lib.GetKubeConfig()
 	if err != nil {
 		return "", "", err
 	}
@@ -203,21 +204,22 @@ func getMongoDBInfo(namespace string, dbObjectName string) (podName string, secr
 }
 
 func getPrimaryPodName(config *rest.Config, mongo *apiv1alpha2.MongoDB) (string, error) {
+	var err error
 	podName := ""
 	if mongo.Spec.ReplicaSet == nil && mongo.Spec.ShardTopology == nil {
 		//one mongo, without shard
 		podName = fmt.Sprintf("%v-0", mongo.Name)
-	}
-
-	if mongo.Spec.ShardTopology != nil {
+	} else if mongo.Spec.ReplicaSet != nil {
+		//More than a replica, no shard
+		podName, err = GetReplicaMasterNode(mongo)
+		if err != nil {
+			return "", err
+		}
+	} else if mongo.Spec.ShardTopology != nil {
 		//shard, no master
 		podName = GetMongosPodName(config, mongo)
 	}
-	//More than a replica, no shard
-	podName, err := GetReplicaMasterNode(mongo)
-	if err != nil {
-		return "", err
-	}
+
 	return podName, nil
 }
 
@@ -278,7 +280,7 @@ func GetReplicaMasterNode(mongo *apiv1alpha2.MongoDB) (string, error) {
 }
 
 func ConnectAndPing(mongo *apiv1alpha2.MongoDB, clientPodName string, isReplSet bool) (*mgo.Client, *portforward.Tunnel, error) {
-	config, err := getKubeConfig()
+	config, err := lib.GetKubeConfig()
 	if err != nil {
 		log.Fatalf("Could not get Kubernetes config: %s", err)
 	}

@@ -79,7 +79,13 @@ func NewKubeDBCommand(in io.Reader, out, err io.Writer) *cobra.Command {
 	}
 	groups.Add(rootCmd)
 	templates.ActsAsRootCommand(rootCmd, nil, groups...)
-	databases.AddDatabaseCMDs(rootCmd)
+
+	databases.AddPostgresCMD(rootCmd)
+	databases.AddMysqlCMD(rootCmd)
+	databases.AddMongoCMD(rootCmd)
+	databases.AddRedisCMD(rootCmd)
+	databases.AddElasticsearchCMD(rootCmd)
+	databases.AddMemcachedCMD(rootCmd)
 
 	return rootCmd
 }

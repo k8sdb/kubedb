@@ -27,6 +27,7 @@ import (
 
 	apiv1alpha2 "kubedb.dev/apimachinery/apis/kubedb/v1alpha2"
 	cs "kubedb.dev/apimachinery/client/clientset/versioned"
+	"kubedb.dev/cli/pkg/lib"
 
 	shell "github.com/codeskyblue/go-sh"
 	"github.com/spf13/cobra"
@@ -35,7 +36,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func addMysqlCMD(cmds *cobra.Command) {
+func AddMysqlCMD(cmds *cobra.Command) {
 	var mysqlName string
 	var dbName string
 	var namespace string
@@ -65,7 +66,7 @@ func addMysqlCMD(cmds *cobra.Command) {
 				log.Fatal(err)
 			}
 
-			auth, tunnel, err := tunnelToDBPod(mysqlPort, namespace, podName, secretName)
+			auth, tunnel, err := lib.TunnelToDBPod(mysqlPort, namespace, podName, secretName)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -92,7 +93,7 @@ func addMysqlCMD(cmds *cobra.Command) {
 				log.Fatal(err)
 			}
 
-			auth, tunnel, err := tunnelToDBPod(mysqlPort, namespace, podName, secretName)
+			auth, tunnel, err := lib.TunnelToDBPod(mysqlPort, namespace, podName, secretName)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -181,7 +182,7 @@ func mysqlApplyCommand(auth *corev1.Secret, localPort int, dbname string, comman
 }
 
 func getMysqlInfo(namespace string, dbObjectName string) (podName string, secretName string, err error) {
-	config, err := getKubeConfig()
+	config, err := lib.GetKubeConfig()
 	if err != nil {
 		log.Fatalf("Could not get Kubernetes config: %s", err)
 	}
@@ -206,7 +207,7 @@ func getMysqlInfo(namespace string, dbObjectName string) (podName string, secret
 		command := "select MEMBER_HOST from performance_schema.replication_group_members" +
 			" INNER JOIN performance_schema.global_status ON " +
 			"performance_schema.replication_group_members.MEMBER_ID=performance_schema.global_status.VARIABLE_VALUE;"
-		auth, tunnel, err := tunnelToDBPod(mysqlPort, namespace, tempPodName, secretName)
+		auth, tunnel, err := lib.TunnelToDBPod(mysqlPort, namespace, tempPodName, secretName)
 		if err != nil {
 			log.Fatalln(err)
 		}

@@ -25,6 +25,7 @@ import (
 
 	apiv1alpha2 "kubedb.dev/apimachinery/apis/kubedb/v1alpha2"
 	cs "kubedb.dev/apimachinery/client/clientset/versioned"
+	"kubedb.dev/cli/pkg/lib"
 
 	shell "github.com/codeskyblue/go-sh"
 	"github.com/spf13/cobra"
@@ -34,7 +35,7 @@ import (
 	"kmodules.xyz/client-go/tools/portforward"
 )
 
-func addMemcachedCMD(cmds *cobra.Command) {
+func AddMemcachedCMD(cmds *cobra.Command) {
 	var mcName string
 	var namespace string
 	var mcCmd = &cobra.Command{
@@ -86,7 +87,7 @@ func mcConnect(port int) {
 }
 
 func getMemcachedInfo(namespace, dbObjectName string) (podName string, err error) {
-	config, err := getKubeConfig()
+	config, err := lib.GetKubeConfig()
 	if err != nil {
 		log.Fatalf("Could not get Kubernetes config: %s", err)
 	}
@@ -114,7 +115,7 @@ func getMemcachedInfo(namespace, dbObjectName string) (podName string, err error
 
 func tunnelToMcPod(dbPort int, namespace, podName string) (*portforward.Tunnel, error) {
 	//TODO: Always close the tunnel after using thing function
-	config, err := getKubeConfig()
+	config, err := lib.GetKubeConfig()
 	if err != nil {
 		return nil, err
 	}

@@ -25,6 +25,7 @@ import (
 
 	apiv1alpha2 "kubedb.dev/apimachinery/apis/kubedb/v1alpha2"
 	cs "kubedb.dev/apimachinery/client/clientset/versioned"
+	"kubedb.dev/cli/pkg/lib"
 
 	shell "github.com/codeskyblue/go-sh"
 	"github.com/spf13/cobra"
@@ -34,7 +35,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func addElasticsearchCMD(cmds *cobra.Command) {
+func AddElasticsearchCMD(cmds *cobra.Command) {
 	var esName string
 	var namespace string
 	var esCmd = &cobra.Command{
@@ -60,7 +61,7 @@ func addElasticsearchCMD(cmds *cobra.Command) {
 				log.Fatal(err)
 			}
 
-			auth, tunnel, err := tunnelToDBPod(esPort, namespace, podName, secretName)
+			auth, tunnel, err := lib.TunnelToDBPod(esPort, namespace, podName, secretName)
 			if err != nil {
 				log.Fatal("Couldn't tunnel through. Error = ", err)
 			}
@@ -87,7 +88,7 @@ func esConnect(auth *corev1.Secret, localPort int) {
 }
 
 func getElasticsearchInfo(namespace, dbObjectName string) (podName string, secretName string, err error) {
-	config, err := getKubeConfig()
+	config, err := lib.GetKubeConfig()
 	if err != nil {
 		log.Fatalf("Could not get Kubernetes config: %s", err)
 	}

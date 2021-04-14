@@ -26,6 +26,7 @@ import (
 
 	apiv1alpha2 "kubedb.dev/apimachinery/apis/kubedb/v1alpha2"
 	cs "kubedb.dev/apimachinery/client/clientset/versioned"
+	"kubedb.dev/cli/pkg/lib"
 
 	"github.com/appscode/go/types"
 	shell "github.com/codeskyblue/go-sh"
@@ -35,7 +36,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func addPostgresCMD(cmds *cobra.Command) {
+func AddPostgresCMD(cmds *cobra.Command) {
 	var pgName string
 	var dbname string
 	var namespace string
@@ -64,7 +65,7 @@ func addPostgresCMD(cmds *cobra.Command) {
 				log.Fatal(err)
 			}
 
-			auth, tunnel, err := tunnelToDBPod(pgPort, namespace, podName, secretName)
+			auth, tunnel, err := lib.TunnelToDBPod(pgPort, namespace, podName, secretName)
 			if err != nil {
 				log.Fatal("Couldn't tunnel through. Error = ", err)
 			}
@@ -95,7 +96,7 @@ func addPostgresCMD(cmds *cobra.Command) {
 				log.Fatal(err)
 			}
 
-			auth, tunnel, err := tunnelToDBPod(pgPort, namespace, podName, secretName)
+			auth, tunnel, err := lib.TunnelToDBPod(pgPort, namespace, podName, secretName)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -178,7 +179,7 @@ func pgApplyCommand(auth *corev1.Secret, localPort int, dbname string, command s
 }
 
 func getPostgresInfo(namespace string, dbObjectName string) (podName string, secretName string, err error) {
-	config, err := getKubeConfig()
+	config, err := lib.GetKubeConfig()
 	if err != nil {
 		return "", "", err
 	}
