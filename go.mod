@@ -3,6 +3,7 @@ module kubedb.dev/cli
 go 1.12
 
 require (
+	github.com/appscode/go v0.0.0-20201105063637-5613f3b8169f
 	github.com/fatih/camelcase v1.0.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/spf13/cobra v1.1.1

@@ -20,6 +20,8 @@ github.com/MakeNowJust/heredoc
 github.com/PuerkitoBio/purell
 # github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578
 github.com/PuerkitoBio/urlesc
+# github.com/appscode/go v0.0.0-20201105063637-5613f3b8169f
+github.com/appscode/go/crypto/rand
 # github.com/chai2010/gettext-go v0.0.0-20160711120539-c6fed771bfd5
 github.com/chai2010/gettext-go/gettext
 github.com/chai2010/gettext-go/gettext/mo
@@ -190,6 +192,8 @@ golang.org/x/time/rate
 gomodules.xyz/homedir
 # gomodules.xyz/jsonpatch/v2 v2.1.0
 gomodules.xyz/jsonpatch/v2
+# gomodules.xyz/password-generator v0.2.6
+gomodules.xyz/password-generator
 # gomodules.xyz/pointer v0.0.0-20201105071923-daf60fa55209
 gomodules.xyz/pointer
 # gomodules.xyz/runtime v0.0.0-20201104200926-d838b09dda8b
@@ -504,6 +508,7 @@ kubedb.dev/apimachinery/apis/ops
 kubedb.dev/apimachinery/apis/ops/v1alpha1
 kubedb.dev/apimachinery/client/clientset/versioned/scheme
 kubedb.dev/apimachinery/client/clientset/versioned/typed/kubedb/v1alpha2
+kubedb.dev/apimachinery/client/clientset/versioned/typed/ops/v1alpha1
 kubedb.dev/apimachinery/crds
 # sigs.k8s.io/kustomize v2.0.3+incompatible
 sigs.k8s.io/kustomize/pkg/commands/build
