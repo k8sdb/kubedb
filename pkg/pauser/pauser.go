@@ -29,7 +29,7 @@ type Pauser interface {
 	Pause(string, string) error
 }
 
-func NewPauser(restClientGetter genericclioptions.RESTClientGetter, mapping *meta.RESTMapping) (Pauser, error) {
+func NewPauser(restClientGetter genericclioptions.RESTClientGetter, mapping *meta.RESTMapping, onlyDb, onlyBackup bool) (Pauser, error) {
 	clientConfig, err := restClientGetter.ToRESTConfig()
 	if err != nil {
 		return nil, err
@@ -40,17 +40,17 @@ func NewPauser(restClientGetter genericclioptions.RESTClientGetter, mapping *met
 
 	switch mapping.GroupVersionKind.Kind {
 	case api.ResourceKindElasticsearch:
-		return NewElasticsearchPauser(clientConfig)
+		return NewElasticsearchPauser(clientConfig, onlyDb, onlyBackup)
 	case api.ResourceKindMongoDB:
-		return NewMongoDBPauser(clientConfig)
+		return NewMongoDBPauser(clientConfig, onlyDb, onlyBackup)
 	case api.ResourceKindMySQL:
-		return NewMySQLPauser(clientConfig)
+		return NewMySQLPauser(clientConfig, onlyDb, onlyBackup)
 	case api.ResourceKindMariaDB:
-		return NewMariaDBPauser(clientConfig)
+		return NewMariaDBPauser(clientConfig, onlyDb, onlyBackup)
 	case api.ResourceKindPostgres:
-		return NewPostgresPauser(clientConfig)
+		return NewPostgresPauser(clientConfig, onlyDb, onlyBackup)
 	case api.ResourceKindRedis:
-		return NewRedisPauser(clientConfig)
+		return NewRedisPauser(clientConfig, onlyDb, onlyBackup)
 	default:
 		return nil, errors.New("unknown kind")
 	}

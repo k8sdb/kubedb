@@ -27,20 +27,31 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
+	scs "stash.appscode.dev/apimachinery/client/clientset/versioned/typed/stash/v1beta1"
 )
 
 type RedisResumer struct {
-	dbClient cs.KubedbV1alpha2Interface
+	dbClient    cs.KubedbV1alpha2Interface
+	stashClient scs.StashV1beta1Interface
+	onlyDb      bool
+	onlyBackup  bool
 }
 
-func NewRedisResumer(clientConfig *rest.Config) (*RedisResumer, error) {
-	k, err := cs.NewForConfig(clientConfig)
+func NewRedisResumer(clientConfig *rest.Config, onlyDb, onlyBackup bool) (*RedisResumer, error) {
+	dbClient, err := cs.NewForConfig(clientConfig)
+	if err != nil {
+		return nil, err
+	}
+	stashClient, err := scs.NewForConfig(clientConfig)
 	if err != nil {
 		return nil, err
 	}
 
 	return &RedisResumer{
-		dbClient: k,
+		dbClient:    dbClient,
+		stashClient: stashClient,
+		onlyDb:      onlyDb,
+		onlyBackup:  onlyBackup,
 	}, nil
 }
 
@@ -49,12 +60,24 @@ func (e *RedisResumer) Resume(name, namespace string) error {
 	if err != nil {
 		return err
 	}
-	_, err = dbutil.UpdateRedisStatus(context.TODO(), e.dbClient, db.ObjectMeta, func(status *api.RedisStatus) (types.UID, *api.RedisStatus) {
-		status.Conditions = kmapi.RemoveCondition(status.Conditions, api.DatabasePaused)
-		return db.UID, status
-	}, metav1.UpdateOptions{})
-	if err != nil {
-		return err
+	resumeAll := !(e.onlyBackup || e.onlyDb)
+
+	if e.onlyDb || resumeAll {
+		_, err = dbutil.UpdateRedisStatus(context.TODO(), e.dbClient, db.ObjectMeta, func(status *api.RedisStatus) (types.UID, *api.RedisStatus) {
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, api.DatabasePaused)
+			return db.UID, status
+		}, metav1.UpdateOptions{})
+		if err != nil {
+			return err
+		}
 	}
+
+	if e.onlyBackup || resumeAll {
+		err = ResumeBackupConfiguration(e.stashClient, db.ObjectMeta)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

@@ -73,6 +73,9 @@ type PauseOptions struct {
 	FilenameOptions *resource.FilenameOptions
 
 	genericclioptions.IOStreams
+
+	onlyDb     bool
+	onlyBackup bool
 }
 
 func NewCmdPause(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
@@ -101,6 +104,8 @@ func NewCmdPause(parent string, f cmdutil.Factory, streams genericclioptions.IOS
 	cmdutil.AddFilenameOptionFlags(cmd, o.FilenameOptions, usage)
 	cmd.Flags().StringVarP(&o.Selector, "selector", "l", o.Selector, "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)")
 	cmd.Flags().BoolVar(&o.AllNamespaces, "all-namespaces", o.AllNamespaces, "If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.")
+	cmd.Flags().BoolVar(&o.onlyDb, "only-db", false, "If provided, only the database is paused.")
+	cmd.Flags().BoolVar(&o.onlyBackup, "only-backupconfig", false, "If provided, only the backupconfiguration for the database is paused.")
 
 	return cmd
 }
@@ -160,7 +165,7 @@ func (o *PauseOptions) Run() error {
 
 	errs := sets.NewString()
 	for _, info := range infos {
-		psr, err := pauser.NewPauser(o.Factory, info.Mapping)
+		psr, err := pauser.NewPauser(o.Factory, info.Mapping, o.onlyDb, o.onlyBackup)
 		if err != nil {
 			if errs.Has(err.Error()) {
 				continue
@@ -177,8 +182,14 @@ func (o *PauseOptions) Run() error {
 			allErrs = append(allErrs, err)
 			errs.Insert(err.Error())
 		}
+		pauseAll := !(o.onlyBackup || o.onlyDb)
 
-		fmt.Fprintf(o.Out, "Successfully paused %s/%s.\n", info.Namespace, info.Name)
+		if o.onlyDb || pauseAll {
+			fmt.Fprintf(o.Out, "Successfully paused %s/%s.\n", info.Namespace, info.Name)
+		}
+		if o.onlyBackup || pauseAll {
+			fmt.Fprintf(o.Out, "Successfully paused backupconfigurations of %s/%s.\n", info.Namespace, info.Name)
+		}
 	}
 
 	return utilerrors.NewAggregate(allErrs)

@@ -29,7 +29,7 @@ type Resumer interface {
 	Resume(string, string) error
 }
 
-func NewResumer(restClientGetter genericclioptions.RESTClientGetter, mapping *meta.RESTMapping) (Resumer, error) {
+func NewResumer(restClientGetter genericclioptions.RESTClientGetter, mapping *meta.RESTMapping, onlyDb, onlyBackup bool) (Resumer, error) {
 	clientConfig, err := restClientGetter.ToRESTConfig()
 	if err != nil {
 		return nil, err
@@ -40,17 +40,17 @@ func NewResumer(restClientGetter genericclioptions.RESTClientGetter, mapping *me
 
 	switch mapping.GroupVersionKind.Kind {
 	case api.ResourceKindElasticsearch:
-		return NewElasticsearchResumer(clientConfig)
+		return NewElasticsearchResumer(clientConfig, onlyDb, onlyBackup)
 	case api.ResourceKindMongoDB:
-		return NewMongoDBResumer(clientConfig)
+		return NewMongoDBResumer(clientConfig, onlyDb, onlyBackup)
 	case api.ResourceKindMySQL:
-		return NewMySQLResumer(clientConfig)
+		return NewMySQLResumer(clientConfig, onlyDb, onlyBackup)
 	case api.ResourceKindMariaDB:
-		return NewMariaDBResumer(clientConfig)
+		return NewMariaDBResumer(clientConfig, onlyDb, onlyBackup)
 	case api.ResourceKindPostgres:
-		return NewPostgresResumer(clientConfig)
+		return NewPostgresResumer(clientConfig, onlyDb, onlyBackup)
 	case api.ResourceKindRedis:
-		return NewRedisResumer(clientConfig)
+		return NewRedisResumer(clientConfig, onlyDb, onlyBackup)
 	default:
 		return nil, errors.New("unknown object kind")
 	}

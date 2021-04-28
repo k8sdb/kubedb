@@ -73,6 +73,9 @@ type ResumeOptions struct {
 	FilenameOptions *resource.FilenameOptions
 
 	genericclioptions.IOStreams
+
+	onlyDb     bool
+	onlyBackup bool
 }
 
 func NewCmdResume(parent string, f cmdutil.Factory, streams genericclioptions.IOStreams) *cobra.Command {
@@ -100,6 +103,8 @@ func NewCmdResume(parent string, f cmdutil.Factory, streams genericclioptions.IO
 	cmdutil.AddFilenameOptionFlags(cmd, o.FilenameOptions, usage)
 	cmd.Flags().StringVarP(&o.Selector, "selector", "l", o.Selector, "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)")
 	cmd.Flags().BoolVar(&o.AllNamespaces, "all-namespaces", o.AllNamespaces, "If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.")
+	cmd.Flags().BoolVar(&o.onlyDb, "only-db", false, "If provided, only the database is resumed.")
+	cmd.Flags().BoolVar(&o.onlyBackup, "only-backupconfig", false, "If provided, only the backupconfiguration for the database is resumed.")
 
 	return cmd
 }
@@ -159,7 +164,7 @@ func (o *ResumeOptions) Run() error {
 
 	errs := sets.NewString()
 	for _, info := range infos {
-		rsr, err := resumer.NewResumer(o.Factory, info.Mapping)
+		rsr, err := resumer.NewResumer(o.Factory, info.Mapping, o.onlyDb, o.onlyBackup)
 		if err != nil {
 			if errs.Has(err.Error()) {
 				continue
@@ -177,7 +182,14 @@ func (o *ResumeOptions) Run() error {
 			errs.Insert(err.Error())
 		}
 
-		fmt.Fprintf(o.Out, "Successfully resumed %s/%s.\n", info.Namespace, info.Name)
+		resumeAll := !(o.onlyBackup || o.onlyDb)
+
+		if o.onlyDb || resumeAll {
+			fmt.Fprintf(o.Out, "Successfully resumed %s/%s.\n", info.Namespace, info.Name)
+		}
+		if o.onlyBackup || resumeAll {
+			fmt.Fprintf(o.Out, "Successfully resumed backupconfigurations of %s/%s.\n", info.Namespace, info.Name)
+		}
 	}
 	return utilerrors.NewAggregate(allErrs)
 }

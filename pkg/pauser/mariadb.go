@@ -27,20 +27,32 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/rest"
 	kmapi "kmodules.xyz/client-go/api/v1"
+	scs "stash.appscode.dev/apimachinery/client/clientset/versioned/typed/stash/v1beta1"
 )
 
 type MariaDBPauser struct {
-	dbClient cs.KubedbV1alpha2Interface
+	dbClient    cs.KubedbV1alpha2Interface
+	stashClient scs.StashV1beta1Interface
+	onlyDb      bool
+	onlyBackup  bool
 }
 
-func NewMariaDBPauser(clientConfig *rest.Config) (*MariaDBPauser, error) {
-	k, err := cs.NewForConfig(clientConfig)
+func NewMariaDBPauser(clientConfig *rest.Config, onlyDb, onlyBackup bool) (*MariaDBPauser, error) {
+	dbClient, err := cs.NewForConfig(clientConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	stashClient, err := scs.NewForConfig(clientConfig)
 	if err != nil {
 		return nil, err
 	}
 
 	return &MariaDBPauser{
-		dbClient: k,
+		dbClient:    dbClient,
+		stashClient: stashClient,
+		onlyDb:      onlyDb,
+		onlyBackup:  onlyBackup,
 	}, nil
 }
 
@@ -49,16 +61,28 @@ func (e *MariaDBPauser) Pause(name, namespace string) error {
 	if err != nil {
 		return err
 	}
-	_, err = dbutil.UpdateMariaDBStatus(context.TODO(), e.dbClient, db.ObjectMeta, func(status *api.MariaDBStatus) (types.UID, *api.MariaDBStatus) {
-		status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.NewCondition(
-			api.DatabasePaused,
-			"Paused by KubeDB CLI tool",
-			db.Generation,
-		))
-		return db.UID, status
-	}, metav1.UpdateOptions{})
-	if err != nil {
-		return err
+
+	pauseAll := !(e.onlyBackup || e.onlyDb)
+
+	if e.onlyDb || pauseAll {
+		_, err = dbutil.UpdateMariaDBStatus(context.TODO(), e.dbClient, db.ObjectMeta, func(status *api.MariaDBStatus) (types.UID, *api.MariaDBStatus) {
+			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.NewCondition(
+				api.DatabasePaused,
+				"Paused by KubeDB CLI tool",
+				db.Generation,
+			))
+			return db.UID, status
+		}, metav1.UpdateOptions{})
+		if err != nil {
+			return err
+		}
+	}
+
+	if e.onlyBackup || pauseAll {
+		err = PauseBackupConfiguration(e.stashClient, db.ObjectMeta)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
